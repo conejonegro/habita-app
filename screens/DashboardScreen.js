@@ -1,15 +1,15 @@
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { UberColors, UberTypography, UberSpacing, UberShadows, UberBorderRadius } from '../styles/uberTheme';
 import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth } from '../firebase/firebaseConfig';
 import { db } from '../firebase/firebaseConfig'; // Asegúrate de exportar `db` desde tu configuración de Firebase
+import { FontAwesome } from '@expo/vector-icons';
 
 export default function DashboardScreen({ navigation }) {
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [userName, setUserName] = useState('');
   const [showPayButton, setShowPayButton] = useState(false);
-  const [currentEventIndex, setCurrentEventIndex] = useState(0);
-  const [fadeAnim] = useState(new Animated.Value(1));
 
   const events = [
     { title: 'Junta de condominio', date: 'Lun, 14 de Oct' },
@@ -78,40 +78,29 @@ export default function DashboardScreen({ navigation }) {
     fetchUserName();
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]).start();
-
-      setCurrentEventIndex((prevIndex) => (prevIndex + 1) % events.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [fadeAnim, events.length]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.welcomeMessage}>
-        Hola <Text style={styles.userName}>{userName}</Text>, Bienvenido
-      </Text>
-
-      {/* Estado de pagos */}
-      <View style={[styles.card, paymentStatus === 'Al día' ? { backgroundColor: '#d4f7d4' } : { backgroundColor: '#f7d4d4' }]}>
-        <Text style={styles.cardTitle}>Estado de pagos</Text>
-        <Text style={[styles.status, paymentStatus === 'Al día' ? { color: 'green' } : { color: 'red' }]}>        
-          {paymentStatus === 'Al día' ? '✅ ' : '❌ '}
-          {paymentStatus || 'Cargando...'}
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Inicio</Text>
+      </View>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <Text style={styles.welcomeMessage}>
+          Hola <Text style={styles.userName}>{userName}</Text>, Bienvenido
         </Text>
+
+      {/* Actualiza tu Método de Pago */}
+      <View style={[styles.card, { backgroundColor: '#E3F2FD' }]}>
+        <Text style={styles.cardTitle}>Actualiza tu Método de Pago</Text>
+        <View style={styles.paymentMessageContainer}>
+          <FontAwesome name="credit-card" size={16} color="#1976D2" style={styles.paymentIcon} />
+          <Text style={[styles.status, { color: '#1976D2' }]}>        
+            Agrega un método de pago y activa pagos automáticos fácilmente
+          </Text>
+        </View>
+        <TouchableOpacity style={[styles.button, { marginTop: 12 }]}>
+          <Text style={styles.buttonText}>Configurar Pago</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Botón de Pago */}
@@ -127,19 +116,47 @@ export default function DashboardScreen({ navigation }) {
         </View>
       )}
 
-      {/* Próximos eventos */}
-      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>        
-        <Text style={styles.cardTitle}>Próximos eventos</Text>
-        <Text>📅 {events[currentEventIndex].title}</Text>
-        <Text style={styles.date}>{events[currentEventIndex].date}</Text>
-      </Animated.View>
-
-      {/* Notificaciones */}
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('NotificationsScreen')}>
-        <Text style={styles.cardTitle}>Notificaciones</Text>
-        <Text>🚰 Corte de agua</Text>
-        <Text style={styles.date}>Mañana a las 10:00 AM</Text>
-      </TouchableOpacity>
+      {/* Eventos y Notificaciones */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Eventos y Notificaciones</Text>
+        
+        {/* Lista de eventos y notificaciones */}
+        <View style={styles.listContainer}>
+          <TouchableOpacity style={styles.listItem} onPress={() => navigation.navigate('NotificationsScreen')}>
+            <View style={styles.listIcon}>
+              <FontAwesome name="calendar" size={18} color={UberColors.textPrimary} />
+            </View>
+            <View style={styles.listContent}>
+              <Text style={styles.listTitle}>Junta de condominio</Text>
+              <Text style={styles.listSubtitle}>Lun, 14 de Oct</Text>
+            </View>
+          </TouchableOpacity>
+          
+          <View style={styles.separator} />
+          
+          <TouchableOpacity style={styles.listItem} onPress={() => navigation.navigate('NotificationsScreen')}>
+            <View style={styles.listIcon}>
+              <FontAwesome name="tint" size={18} color={UberColors.textPrimary} />
+            </View>
+            <View style={styles.listContent}>
+              <Text style={styles.listTitle}>Corte de agua</Text>
+              <Text style={styles.listSubtitle}>Mañana a las 10:00 AM</Text>
+            </View>
+          </TouchableOpacity>
+          
+          <View style={styles.separator} />
+          
+          <TouchableOpacity style={styles.listItem} onPress={() => navigation.navigate('NotificationsScreen')}>
+            <View style={styles.listIcon}>
+              <FontAwesome name="wrench" size={18} color={UberColors.textPrimary} />
+            </View>
+            <View style={styles.listContent}>
+              <Text style={styles.listTitle}>Mantenimiento general</Text>
+              <Text style={styles.listSubtitle}>Vie, 20 de Oct</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* Crear Ticket de Mantenimiento */}
       <View style={styles.card}>
@@ -151,48 +168,128 @@ export default function DashboardScreen({ navigation }) {
           <Text style={styles.buttonText}>Ir a Crear Ticket</Text>
         </TouchableOpacity>
       </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  greeting: { fontSize: 18, marginBottom: 20 },
-  card: {
-    padding: 15,
-    borderRadius: 10,
-    backgroundColor: '#f7f7f7',
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+  container: { 
+    flex: 1, 
+    backgroundColor: UberColors.backgroundSecondary 
   },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 5 },
-  status: { fontSize: 18, fontWeight: 'bold' },
-  date: { fontSize: 13, color: '#555', marginTop: 5 },
+  header: {
+    backgroundColor: UberColors.backgroundSecondary,
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingHorizontal: UberSpacing.lg,
+  },
+  headerTitle: {
+    fontSize: UberTypography.fontSize['3xl'],
+    fontWeight: '700',
+    color: UberColors.textPrimary,
+    textAlign: 'left',
+    letterSpacing: -0.5,
+  },
+  scrollView: {
+    flex: 1,
+  },
   welcomeMessage: {
-    fontSize: 20,
-    color: '#333',
-    marginBottom: 20,
+    fontSize: UberTypography.fontSize.xl,
+    fontFamily: UberTypography.fontFamilyMedium,
+    color: UberColors.textPrimary,
+    marginBottom: UberSpacing.lg,
+    marginHorizontal: UberSpacing.lg,
+    marginTop: UberSpacing.lg,
   },
   userName: {
-    fontWeight: 'bold',
-    color: '#007BFF',
+    fontFamily: UberTypography.fontFamilyBold,
+    color: UberColors.primaryBlue,
+  },
+  card: {
+    padding: UberSpacing.lg,
+    borderRadius: UberBorderRadius.lg,
+    backgroundColor: UberColors.white,
+    marginBottom: UberSpacing.md,
+    marginHorizontal: UberSpacing.lg,
+    ...UberShadows.small,
+  },
+  cardTitle: { 
+    fontSize: UberTypography.fontSize.xl, 
+    fontWeight: '700',
+    marginBottom: UberSpacing.sm,
+    color: UberColors.textPrimary,
+    letterSpacing: -0.3,
+  },
+  status: { 
+    fontSize: UberTypography.fontSize.lg, 
+    fontFamily: UberTypography.fontFamilySemiBold,
+    color: UberColors.textPrimary,
+  },
+  date: { 
+    fontSize: UberTypography.fontSize.sm, 
+    fontFamily: UberTypography.fontFamily,
+    color: UberColors.textSecondary, 
+    marginTop: UberSpacing.sm 
   },
   button: {
-    marginTop: 10,
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: '#007BFF',
-    alignItems: 'center',
+    marginTop: UberSpacing.md,
+    paddingVertical: UberSpacing.md,
+    paddingHorizontal: UberSpacing.lg,
+    borderRadius: UberBorderRadius['3xl'],
+    backgroundColor: UberColors.buttonPrimary,
+    alignSelf: 'flex-start',
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: UberColors.buttonText,
+    fontFamily: UberTypography.fontFamilySemiBold,
+    fontSize: UberTypography.fontSize.base,
   },
   eventContainer: {
     // transition: 'transform 0.5s ease-in-out',
+  },
+  listContainer: {
+    marginTop: UberSpacing.md,
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: UberSpacing.md,
+  },
+  listIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: UberColors.gray200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: UberSpacing.md,
+  },
+  paymentMessageContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: UberSpacing.sm,
+  },
+  paymentIcon: {
+    marginRight: UberSpacing.sm,
+  },
+  listContent: {
+    flex: 1,
+  },
+  listTitle: {
+    fontSize: UberTypography.fontSize.base,
+    fontFamily: UberTypography.fontFamilyBold,
+    color: UberColors.textPrimary,
+    marginBottom: 2,
+  },
+  listSubtitle: {
+    fontSize: UberTypography.fontSize.sm,
+    fontFamily: UberTypography.fontFamily,
+    color: UberColors.textSecondary,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: UberColors.borderLight,
+    marginLeft: 56, // 40 (icon width) + 16 (margin)
   },
 });

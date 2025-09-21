@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { UberColors, UberTypography, UberSpacing, UberShadows, UberBorderRadius } from '../styles/uberTheme';
 
 const notifications = [
   { id: '1', title: 'Corte de agua', date: 'Mañana a las 10:00 AM', description: 'Se realizará un corte de agua por mantenimiento en las tuberías principales.' },
@@ -16,8 +17,10 @@ const NotificationsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Notificaciones</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>Notificaciones</Text>
+      </View>
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
@@ -40,30 +43,35 @@ const NotificationsScreen = () => {
           </View>
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: UberColors.backgroundSecondary,
   },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
+  headerContainer: {
+    backgroundColor: UberColors.backgroundSecondary,
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingHorizontal: UberSpacing.lg,
+  },
+  headerTitle: {
+    fontSize: UberTypography.fontSize['3xl'],
+    fontWeight: '700',
+    color: UberColors.textPrimary,
+    textAlign: 'left',
+    letterSpacing: -0.5,
   },
   notificationCard: {
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 8,
-    backgroundColor: '#f7f7f7',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    padding: UberSpacing.lg,
+    marginBottom: UberSpacing.md,
+    marginHorizontal: UberSpacing.lg,
+    borderRadius: UberBorderRadius.lg,
+    backgroundColor: UberColors.white,
+    ...UberShadows.small,
   },
   titleContainer: {
     flexDirection: 'row',
@@ -73,23 +81,28 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
   },
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: UberTypography.fontSize.xl,
+    fontWeight: '700',
+    color: UberColors.textPrimary,
+    letterSpacing: -0.3,
   },
   date: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 4,
+    fontSize: UberTypography.fontSize.sm,
+    fontFamily: UberTypography.fontFamily,
+    color: UberColors.textSecondary,
+    marginTop: UberSpacing.xs,
   },
   expandedContent: {
-    marginTop: 8,
-    padding: 8,
-    backgroundColor: '#e8e8e8',
-    borderRadius: 4,
+    marginTop: UberSpacing.sm,
+    padding: UberSpacing.sm,
+    backgroundColor: UberColors.gray50,
+    borderRadius: UberBorderRadius.sm,
   },
   description: {
-    fontSize: 14,
-    color: '#333',
+    fontSize: UberTypography.fontSize.sm,
+    fontFamily: UberTypography.fontFamily,
+    color: UberColors.textPrimary,
+    lineHeight: UberTypography.lineHeight.relaxed * UberTypography.fontSize.sm,
   },
 });
 

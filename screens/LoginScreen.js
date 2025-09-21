@@ -14,8 +14,8 @@ const handleGoogleLogin = async () => {
     const user = result.user;
     console.log('Usuario logueado:', user);
 
-    // Navegar al Dashboard
-    navigation.navigate('Dashboard');
+    // Navegar al MainTabs
+    navigation.navigate('MainTabs');
   } catch (error) {
     console.error('Error al iniciar sesión con Google:', error);
   }
@@ -25,8 +25,8 @@ export default function LoginScreen({ navigation }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Si el usuario ya está autenticado, redirigir al Dashboard
-        navigation.replace('Dashboard');
+        // Si el usuario ya está autenticado, redirigir al MainTabs
+        navigation.replace('MainTabs');
       }
     });
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { UberColors, UberTypography, UberSpacing, UberShadows, UberBorderRadius } from '../styles/uberTheme';
 
 const MaintenanceTicketScreen = () => {
   const [title, setTitle] = useState('');
@@ -13,46 +14,113 @@ const MaintenanceTicketScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Levantar Ticket de Mantenimiento</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Título del problema"
-        value={title}
-        onChangeText={setTitle}
-      />
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        placeholder="Descripción del problema"
-        value={description}
-        onChangeText={setDescription}
-        multiline
-      />
-      <Button title="Enviar Ticket" onPress={handleSubmit} />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.content}>
+          <Text style={styles.header}>Levantar Ticket de Mantenimiento</Text>
+          <Text style={styles.subtitle}>Describe el problema que necesitas resolver</Text>
+          
+          <View style={styles.formCard}>
+            <Text style={styles.label}>Título del problema</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ej: Fuga de agua en el baño"
+              value={title}
+              onChangeText={setTitle}
+              placeholderTextColor={UberColors.textSecondary}
+            />
+          </View>
+          
+          <View style={styles.formCard}>
+            <Text style={styles.label}>Descripción detallada</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Describe el problema con el mayor detalle posible..."
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={6}
+              textAlignVertical="top"
+              placeholderTextColor={UberColors.textSecondary}
+            />
+          </View>
+          
+          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+            <Text style={styles.submitButtonText}>Enviar Ticket</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: UberColors.backgroundSecondary,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    padding: UberSpacing.lg,
   },
   header: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
+    fontSize: UberTypography.fontSize['3xl'],
+    fontWeight: '700',
+    marginBottom: UberSpacing.sm,
+    color: UberColors.textPrimary,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: UberTypography.fontSize.base,
+    fontFamily: UberTypography.fontFamily,
+    color: UberColors.textSecondary,
+    marginBottom: UberSpacing.xl,
+    lineHeight: UberTypography.lineHeight.relaxed * UberTypography.fontSize.base,
+  },
+  formCard: {
+    backgroundColor: UberColors.white,
+    borderRadius: UberBorderRadius.lg,
+    padding: UberSpacing.lg,
+    marginBottom: UberSpacing.lg,
+    ...UberShadows.small,
+  },
+  label: {
+    fontSize: UberTypography.fontSize.lg,
+    fontWeight: '700',
+    color: UberColors.textPrimary,
+    marginBottom: UberSpacing.sm,
+    letterSpacing: -0.2,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    padding: 8,
-    marginBottom: 16,
+    borderColor: UberColors.border,
+    borderRadius: UberBorderRadius.md,
+    paddingVertical: UberSpacing.md,
+    paddingHorizontal: UberSpacing.lg,
+    fontSize: UberTypography.fontSize.base,
+    fontFamily: UberTypography.fontFamily,
+    color: UberColors.textPrimary,
+    backgroundColor: UberColors.white,
   },
   textArea: {
-    height: 100,
+    height: 120,
+    textAlignVertical: 'top',
+  },
+  submitButton: {
+    backgroundColor: UberColors.buttonPrimary,
+    borderRadius: UberBorderRadius['3xl'],
+    paddingVertical: UberSpacing.lg,
+    paddingHorizontal: UberSpacing.lg,
+    alignSelf: 'flex-start',
+    marginTop: UberSpacing.md,
+    ...UberShadows.small,
+  },
+  submitButtonText: {
+    color: UberColors.buttonText,
+    fontSize: UberTypography.fontSize.lg,
+    fontFamily: UberTypography.fontFamilySemiBold,
   },
 });
 
