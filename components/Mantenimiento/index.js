@@ -49,10 +49,9 @@ export default function Mantenimiento({ navigation }) {
             where("userId", "==", user.uid)
           );
           const querySnapshot = await getDocs(q);
-          const userTickets = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+          const userTickets = querySnapshot.docs
+            .map((doc) => ({ id: doc.id, ...doc.data() }))
+            .filter((t) => (t.status || '').toLowerCase() !== 'cerrado');
           setTickets(userTickets);
         }
       } catch (error) {
@@ -101,7 +100,7 @@ export default function Mantenimiento({ navigation }) {
 
           <TouchableOpacity
             style={[styles.button, { marginTop: 12 }]}
-            onPress={() => navigation.navigate("MaintenanceTicketScreen")}
+            onPress={() => navigation.navigate("MaintenanceTicket")}
           >
             <Text style={styles.buttonText}>Crear Nuevo Ticket</Text>
           </TouchableOpacity>

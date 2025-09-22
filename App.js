@@ -14,6 +14,39 @@ import ProfileScreen from './screens/ProfileScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const HomeStack = createNativeStackNavigator();
+
+function HomeStackScreen() {
+  return (
+    <HomeStack.Navigator>
+      <HomeStack.Screen
+        name="Dashboard"
+        component={DashboardScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="MaintenanceTicket"
+        component={MaintenanceTicketScreen}
+        options={{
+          title: 'Ticket de Mantenimiento',
+          headerStyle: {
+            backgroundColor: '#FFFFFF',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 4,
+          },
+          headerTintColor: '#000000',
+          headerTitleStyle: {
+            fontWeight: '600',
+            fontSize: 18,
+          },
+        }}
+      />
+    </HomeStack.Navigator>
+  );
+}
 
 function MainTabs() {
   return (
@@ -59,7 +92,7 @@ function MainTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Inicio" component={DashboardScreen} />
+      <Tab.Screen name="Inicio" component={HomeStackScreen} />
       <Tab.Screen name="Pagos" component={PaymentsScreen} />
       <Tab.Screen name="NotificationsScreen" component={NotificationsScreen} />
       <Tab.Screen name="Soporte" component={SupportScreen} />
@@ -94,26 +127,7 @@ export default function App() {
           component={MainTabs}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="MaintenanceTicketScreen" 
-          component={MaintenanceTicketScreen}
-          options={{ 
-            title: 'Ticket de Mantenimiento',
-            headerStyle: {
-              backgroundColor: '#FFFFFF',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 4,
-              elevation: 4,
-            },
-            headerTintColor: '#000000',
-            headerTitleStyle: {
-              fontWeight: '600',
-              fontSize: 18,
-            },
-          }}
-        />
+        {/** MaintenanceTicket now lives inside HomeStack to keep bottom tabs visible */}
       </Stack.Navigator>
     </NavigationContainer>
   );

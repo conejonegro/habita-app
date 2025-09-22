@@ -1,19 +1,21 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAXkPVNjUzPKiC-Sr4oxokPUXf6_FITzRc",
-  authDomain: "habitah-6ccb2.firebaseapp.com",
-  projectId: "habitah-6ccb2",
-  storageBucket: "habitah-6ccb2.firebasestorage.app",
-  messagingSenderId: "111017970460",
-  appId: "1:111017970460:web:27edcc2e6519944e3d08d9"
-};
+// Read from EXPO_PUBLIC_* env vars (Expo injects these at build time)
+const apiKey = process.env.EXPO_PUBLIC_FIREBASE_API_KEY;
+const authDomain = process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN;
+const projectId = process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID;
+const storageBucket = process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET;
+const messagingSenderId = process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
+const appId = process.env.EXPO_PUBLIC_FIREBASE_APP_ID;
 
-// Initialize Firebase
+if (!apiKey || !authDomain || !projectId || !storageBucket || !messagingSenderId || !appId) {
+  throw new Error('Missing EXPO_PUBLIC_* Firebase env vars. Check your .env file.');
+}
+
+const firebaseConfig = { apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
