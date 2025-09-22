@@ -26,7 +26,7 @@ function MainTabs() {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Pagos') {
             iconName = focused ? 'card' : 'card-outline';
-          } else if (route.name === 'Notificaciones') {
+          } else if (route.name === 'NotificationsScreen') {
             iconName = focused ? 'notifications' : 'notifications-outline';
           } else if (route.name === 'Soporte') {
             iconName = focused ? 'help-circle' : 'help-circle-outline';
@@ -61,7 +61,7 @@ function MainTabs() {
     >
       <Tab.Screen name="Inicio" component={DashboardScreen} />
       <Tab.Screen name="Pagos" component={PaymentsScreen} />
-      <Tab.Screen name="Notificaciones" component={NotificationsScreen} />
+      <Tab.Screen name="NotificationsScreen" component={NotificationsScreen} />
       <Tab.Screen name="Soporte" component={SupportScreen} />
       <Tab.Screen name="Me" component={ProfileScreen} />
     </Tab.Navigator>

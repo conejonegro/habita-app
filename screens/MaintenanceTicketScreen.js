@@ -1,17 +1,64 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { UberColors, UberTypography, UberSpacing, UberShadows, UberBorderRadius } from '../styles/uberTheme';
+import { auth, db } from '../firebase/firebaseConfig';
+import { addDoc, collection, serverTimestamp, doc, setDoc } from 'firebase/firestore';
 
 const MaintenanceTicketScreen = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
-  const handleSubmit = () => {
-    // Aquí puedes manejar el envío del ticket, por ejemplo, enviarlo a un servidor
-    console.log('Ticket enviado:', { title, description });
+const handleSubmit = async () => {
+  try {
+    const user = auth.currentUser;
+    if (!title || !description) {
+      Alert.alert('Error', 'Por favor completa todos los campos');
+      return;
+    }
+
+    // fecha actual formateada
+    const now = new Date();
+    const fecha = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+      now.getDate()
+    ).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(
+      now.getMinutes()
+    ).padStart(2, '0')}`;
+
+    // nombre y apellido del usuario
+    const nombreCompleto = user?.displayName || 'Usuario Desconocido';
+    const [nombre, apellido] = nombreCompleto.split(' ');
+    const nombreId = `${nombre || 'Anon'}-${apellido || 'N/A'}`;
+
+    // construir ID personalizado
+    const customId = `${fecha}_${nombreId}`;
+
+    const newTicket = {
+      titulo: title,
+      descripcion: description,
+      status: 'abierto',
+      prioridad: 'media',
+      categoria: 'general',
+      imagenes: [],
+      userId: user?.uid || null,
+      userName: nombreCompleto,
+      userEmail: user?.email || 'sin-correo',
+      fechaCreacion: serverTimestamp(),
+      fechaActualizacion: serverTimestamp(),
+      asignadoA: null,
+      notas: [],
+    };
+
+    // setDoc con ID custom
+    await setDoc(doc(db, 'tickets_mantenimiento', customId), newTicket);
+
+    Alert.alert('Éxito', `Tu ticket ha sido enviado con ID: ${customId}`);
     setTitle('');
     setDescription('');
-  };
+  } catch (error) {
+    console.error('Error al enviar el ticket:', error);
+    Alert.alert('Error', 'No se pudo enviar el ticket');
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,16 +102,9 @@ const MaintenanceTicketScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: UberColors.backgroundSecondary,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    padding: UberSpacing.lg,
-  },
+  container: { flex: 1, backgroundColor: UberColors.backgroundSecondary },
+  scrollView: { flex: 1 },
+  content: { padding: UberSpacing.lg },
   header: {
     fontSize: UberTypography.fontSize['3xl'],
     fontWeight: '700',
@@ -104,10 +144,7 @@ const styles = StyleSheet.create({
     color: UberColors.textPrimary,
     backgroundColor: UberColors.white,
   },
-  textArea: {
-    height: 120,
-    textAlignVertical: 'top',
-  },
+  textArea: { height: 120, textAlignVertical: 'top' },
   submitButton: {
     backgroundColor: UberColors.buttonPrimary,
     borderRadius: UberBorderRadius['3xl'],

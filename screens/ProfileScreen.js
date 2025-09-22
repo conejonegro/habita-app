@@ -1,34 +1,48 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { UberColors, UberTypography, UberSpacing, UberShadows, UberBorderRadius } from '../styles/uberTheme';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Image,
+} from "react-native";
+import {
+  UberColors,
+  UberTypography,
+  UberSpacing,
+  UberShadows,
+  UberBorderRadius,
+} from "../styles/uberTheme";
+import { signOut, onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase/firebaseConfig";
 
 export default function ProfileScreen({ navigation }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      console.log("Usuario actual:", currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleLogout = async () => {
-    Alert.alert(
-      'Cerrar Sesión',
-      '¿Estás seguro de que quieres cerrar sesión?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Cerrar Sesión',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await signOut(auth);
-              // La navegación se manejará automáticamente por el onAuthStateChanged en App.js
-            } catch (error) {
-              console.error('Error al cerrar sesión:', error);
-              Alert.alert('Error', 'No se pudo cerrar sesión. Inténtalo de nuevo.');
-            }
-          },
-        },
-      ]
-    );
+    try {
+      console.log("Intentando cerrar sesión...");
+      await signOut(auth);
+      console.log("Cierre de sesión exitoso");
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Login" }],
+      });
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      Alert.alert("Error", "No se pudo cerrar sesión. Inténtalo de nuevo.");
+    }
   };
 
   return (
@@ -36,43 +50,51 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Mi Perfil</Text>
       </View>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.content}>
-          <Text style={styles.subtitle}>Gestiona tu cuenta y configuración</Text>
-          
+          <Text style={styles.subtitle}>
+            Gestiona tu cuenta y configuración
+          </Text>
+
           {/* Profile Info */}
           <View style={styles.profileCard}>
             <View style={styles.avatarContainer}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>U</Text>
+                {user?.photoURL ? (
+                  <Image
+                    source={{ uri: user.photoURL }}
+                    style={styles.avatarImage}
+                  />
+                ) : (
+                  <Text style={styles.avatarText}>
+                    {user?.displayName
+                      ? user.displayName[0].toUpperCase()
+                      : "U"}
+                  </Text>
+                )}
               </View>
             </View>
-            <Text style={styles.userName}>Usuario</Text>
-            <Text style={styles.userEmail}>usuario@ejemplo.com</Text>
+            <Text style={styles.userName}>
+              {user?.displayName || "Usuario sin nombre"}
+            </Text>
+            <Text style={styles.userEmail}>
+              {user?.email || "correo@ejemplo.com"}
+            </Text>
           </View>
-          
+
           {/* Profile Options */}
           <View style={styles.optionCard}>
-            <Text style={styles.cardTitle}>Configuración</Text>
-            <View style={styles.optionItem}>
-              <Text style={styles.optionText}>Editar Perfil</Text>
-              <Text style={styles.optionArrow}>›</Text>
-            </View>
-            <View style={styles.optionItem}>
-              <Text style={styles.optionText}>Notificaciones</Text>
-              <Text style={styles.optionArrow}>›</Text>
-            </View>
-            <View style={styles.optionItem}>
-              <Text style={styles.optionText}>Privacidad</Text>
-              <Text style={styles.optionArrow}>›</Text>
-            </View>
-          </View>
-          
-          <View style={styles.optionCard}>
             <Text style={styles.cardTitle}>Cuenta</Text>
-            <TouchableOpacity style={styles.optionItem} onPress={handleLogout}>
-              <Text style={[styles.optionText, styles.logoutText]}>Cerrar Sesión</Text>
-              <Text style={styles.optionArrow}>›</Text>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              <Text style={[styles.optionText, styles.logoutText]}>
+                Cerrar Sesión
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -93,10 +115,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: UberSpacing.lg,
   },
   headerTitle: {
-    fontSize: UberTypography.fontSize['3xl'],
-    fontWeight: '700',
+    fontSize: UberTypography.fontSize["3xl"],
+    fontWeight: "700",
     color: UberColors.textPrimary,
-    textAlign: 'left',
+    textAlign: "left",
     letterSpacing: -0.5,
   },
   scrollView: {
@@ -110,14 +132,14 @@ const styles = StyleSheet.create({
     fontFamily: UberTypography.fontFamily,
     color: UberColors.textSecondary,
     marginBottom: UberSpacing.xl,
-    textAlign: 'left',
+    textAlign: "left",
   },
   profileCard: {
     backgroundColor: UberColors.white,
     borderRadius: UberBorderRadius.lg,
     padding: UberSpacing.lg,
     marginBottom: UberSpacing.md,
-    alignItems: 'center',
+    alignItems: "center",
     ...UberShadows.small,
   },
   avatarContainer: {
@@ -128,11 +150,16 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     backgroundColor: UberColors.primaryBlue,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
   avatarText: {
-    fontSize: UberTypography.fontSize['2xl'],
+    fontSize: UberTypography.fontSize["2xl"],
     fontFamily: UberTypography.fontFamilyBold,
     color: UberColors.white,
   },
@@ -156,28 +183,18 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: UberTypography.fontSize.xl,
-    fontWeight: '700',
+    fontWeight: "700",
     color: UberColors.textPrimary,
     marginBottom: UberSpacing.md,
     letterSpacing: -0.3,
-  },
-  optionItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: UberSpacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: UberColors.borderLight,
   },
   optionText: {
     fontSize: UberTypography.fontSize.base,
     fontFamily: UberTypography.fontFamily,
     color: UberColors.textPrimary,
   },
-  optionArrow: {
-    fontSize: UberTypography.fontSize.lg,
-    fontFamily: UberTypography.fontFamily,
-    color: UberColors.textSecondary,
+  logoutButton: {
+    paddingVertical: UberSpacing.md,
   },
   logoutText: {
     color: UberColors.red,
