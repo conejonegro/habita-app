@@ -18,14 +18,57 @@ import {
 } from "../styles/uberTheme";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
+import { db } from "../firebase/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function ProfileScreen({ navigation }) {
   const [user, setUser] = useState(null);
+  const [perfil, setPerfil] = useState(null);
+  const [edificio, setEdificio] = useState(null);
+  const [loadingEdificio, setLoadingEdificio] = useState(false);
+  const [errorEdificio, setErrorEdificio] = useState(null);
+  const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      setPerfil(null);
+      setEdificio(null);
+      setErrorEdificio(null);
       console.log("Usuario actual:", currentUser);
+
+      if (!currentUser) return;
+
+      setLoadingEdificio(true);
+      try {
+        // Leer perfil directo por uid: usuarios/{uid}
+        const perfilRef = doc(db, "usuarios", currentUser.uid);
+        const perfilSnap = await getDoc(perfilRef);
+
+        if (!perfilSnap.exists()) {
+          setErrorEdificio('No existe perfil en "usuarios".');
+          return;
+        }
+
+        const dataPerfil = { id: perfilSnap.id, ...perfilSnap.data() };
+        setPerfil(dataPerfil);
+
+        if (dataPerfil.edificioRef) {
+          const edifSnap = await getDoc(dataPerfil.edificioRef);
+          if (edifSnap.exists()) {
+            setEdificio({ id: edifSnap.id, ...edifSnap.data() });
+          } else {
+            setErrorEdificio("El edificio asignado no existe.");
+          }
+        } else {
+          setErrorEdificio("Sin edificio asignado.");
+        }
+      } catch (e) {
+        console.error(e);
+        setErrorEdificio("Error cargando perfil/edificio.");
+      } finally {
+        setLoadingEdificio(false);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -63,10 +106,11 @@ export default function ProfileScreen({ navigation }) {
           <View style={styles.profileCard}>
             <View style={styles.avatarContainer}>
               <View style={styles.avatar}>
-                {user?.photoURL ? (
+                {user?.photoURL && !avatarError ? (
                   <Image
-                    source={{ uri: user.photoURL }}
+                    source={{ uri: formatPhotoUrl(user.photoURL) }}
                     style={styles.avatarImage}
+                    onError={() => setAvatarError(true)}
                   />
                 ) : (
                   <Text style={styles.avatarText}>
@@ -83,6 +127,34 @@ export default function ProfileScreen({ navigation }) {
             <Text style={styles.userEmail}>
               {user?.email || "correo@ejemplo.com"}
             </Text>
+
+            {loadingEdificio ? (
+              <Text style={styles.userEmail}>Cargando edificio…</Text>
+            ) : errorEdificio ? (
+              <Text style={[styles.userEmail, { color: UberColors.red }]}>
+                {errorEdificio}
+              </Text>
+            ) : (
+              <>
+                {perfil?.depaId ? (
+                  <Text style={[styles.userEmail, { marginTop: 6 }]}>
+                    Departamento: {perfil.depaId}
+                  </Text>
+                ) : null}
+                {edificio ? (
+                  <>
+                    <Text style={[styles.userEmail, { marginTop: 6 }]}>
+                      Edificio: {edificio.nombre || edificio.code || edificio.id}
+                    </Text>
+                    {edificio.direccion ? (
+                      <Text style={styles.userEmail}>
+                        Dirección: {edificio.direccion.street} {edificio.direccion.numero}, {edificio.direccion.Ciudad || edificio.direccion.ciudad}, {edificio.direccion.estado} {edificio.direccion.codigo_postal}
+                      </Text>
+                    ) : null}
+                  </>
+                ) : null}
+              </>
+            )}
           </View>
 
           {/* Profile Options */}
@@ -101,6 +173,19 @@ export default function ProfileScreen({ navigation }) {
       </ScrollView>
     </SafeAreaView>
   );
+}
+
+// Ayuda a que las fotos de Google se vean nítidas en RN
+function formatPhotoUrl(url) {
+  try {
+    const hasQuery = url.includes("?");
+    if (url.includes("googleusercontent.com")) {
+      return hasQuery ? url : `${url}?sz=200`;
+    }
+    return url;
+  } catch (e) {
+    return url;
+  }
 }
 
 const styles = StyleSheet.create({
@@ -173,6 +258,8 @@ const styles = StyleSheet.create({
     fontSize: UberTypography.fontSize.sm,
     fontFamily: UberTypography.fontFamily,
     color: UberColors.textSecondary,
+    textAlign: "center",
+    fontSize: 12,
   },
   optionCard: {
     backgroundColor: UberColors.white,
