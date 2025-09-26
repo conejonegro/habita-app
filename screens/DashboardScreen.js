@@ -19,6 +19,7 @@ export default function DashboardScreen({ navigation }) {
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [userName, setUserName] = useState("");
   const [showPayButton, setShowPayButton] = useState(false);
+  const [nextPaymentWindow, setNextPaymentWindow] = useState("");
 
   const events = [
     { title: "Junta de condominio", date: "Lun, 14 de Oct" },
@@ -36,6 +37,29 @@ export default function DashboardScreen({ navigation }) {
       } else {
         setShowPayButton(false);
       }
+    };
+
+    const computeNextPaymentWindow = () => {
+      const today = new Date();
+      // Calcular el próximo mes
+      const nextMonthDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+      const monthsEs = [
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre",
+      ];
+      const monthName = monthsEs[nextMonthDate.getMonth()];
+      const year = nextMonthDate.getFullYear();
+      return `del 1 al 10 de ${monthName} ${year}`;
     };
 
     const fetchPaymentStatus = async () => {
@@ -94,6 +118,7 @@ export default function DashboardScreen({ navigation }) {
 
     fetchPaymentStatus();
     fetchUserName();
+    setNextPaymentWindow(computeNextPaymentWindow());
   }, []);
 
   return (
@@ -109,7 +134,6 @@ export default function DashboardScreen({ navigation }) {
           Hola <Text style={styles.userName}>{userName}</Text>, Bienvenido
         </Text>
 
-        {/* Status de pago */}
         {/* Status de pago */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Estado de pago</Text>
@@ -132,6 +156,11 @@ export default function DashboardScreen({ navigation }) {
               {paymentStatus}
             </Text>
           </View>
+          {nextPaymentWindow ? (
+            <Text style={[styles.status, { marginTop: 8 }]}>
+              Próximo pago: {nextPaymentWindow}
+            </Text>
+          ) : null}
         </View>
 
         {/* Actualiza tu Método de Pago */}

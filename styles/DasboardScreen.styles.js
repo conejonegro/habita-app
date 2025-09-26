@@ -50,9 +50,9 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   status: { 
-    fontSize: UberTypography.fontSize.lg, 
+    fontSize: 12, 
     fontFamily: UberTypography.fontFamilySemiBold,
-    color: UberColors.textPrimary,
+    color: UberColors.textSecondary,
   },
   date: { 
     fontSize: UberTypography.fontSize.sm, 
