@@ -52,6 +52,27 @@ export default function Mantenimiento({ navigation }) {
           const userTickets = querySnapshot.docs
             .map((doc) => ({ id: doc.id, ...doc.data() }))
             .filter((t) => (t.status || '').toLowerCase() !== 'cerrado');
+
+          // Ordenar por fecha de creación (más reciente primero)
+          const getCreationTimeMs = (ticket) => {
+            const createdAt = ticket.fechaCreacion;
+            if (!createdAt) return 0;
+            // Firestore Timestamp con seconds/nanoseconds
+            if (typeof createdAt === 'object' && typeof createdAt.seconds === 'number') {
+              const nanoSeconds = typeof createdAt.nanoseconds === 'number' ? createdAt.nanoseconds : 0;
+              return createdAt.seconds * 1000 + nanoSeconds / 1e6;
+            }
+            // Firestore Timestamp con toDate()
+            if (createdAt && typeof createdAt.toDate === 'function') {
+              try { return createdAt.toDate().getTime(); } catch {}
+            }
+            // String/Number fecha
+            const parsedTime = new Date(createdAt).getTime();
+            return Number.isFinite(parsedTime) ? parsedTime : 0;
+          };
+
+          userTickets.sort((a, b) => getCreationTimeMs(b) - getCreationTimeMs(a));
+
           setTickets(userTickets);
         }
       } catch (error) {

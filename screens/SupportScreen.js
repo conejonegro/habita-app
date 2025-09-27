@@ -15,9 +15,6 @@ export default function SupportScreen() {
           <View style={styles.supportCard}>
             <Text style={styles.cardTitle}>Contacto Directo</Text>
             <Text style={styles.cardDescription}>Llámanos al 555-0123 o envía un WhatsApp</Text>
-            <View style={styles.supportButton}>
-              <Text style={styles.supportButtonText}>Contactar</Text>
-            </View>
           </View>
           
           <View style={styles.supportCard}>
