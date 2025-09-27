@@ -1,13 +1,31 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { UberColors, UberTypography, UberSpacing, UberShadows, UberBorderRadius } from '../styles/uberTheme';
 import { auth, db } from '../firebase/firebaseConfig';
-import { addDoc, collection, serverTimestamp, doc, setDoc } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, doc, setDoc, getDoc } from 'firebase/firestore';
 
 const MaintenanceTicketScreen = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [successId, setSuccessId] = useState(null);
+  const [edificioRef, setEdificioRef] = useState(null);
+
+  useEffect(() => {
+    // Cargar el edificioRef desde el perfil del usuario: usuarios/{uid}
+    const user = auth.currentUser;
+    if (!user) return;
+    const perfilRef = doc(db, 'usuarios', user.uid);
+    getDoc(perfilRef)
+      .then((snap) => {
+        const data = snap.exists() ? snap.data() : null;
+        if (data && data.edificioRef) {
+          setEdificioRef(data.edificioRef);
+        }
+      })
+      .catch((e) => {
+        console.error('No se pudo leer el perfil/edificioRef:', e);
+      });
+  }, []);
 
 const handleSubmit = async () => {
   try {
@@ -43,6 +61,9 @@ const handleSubmit = async () => {
       userId: user?.uid || null,
       userName: nombreCompleto,
       userEmail: user?.email || 'sin-correo',
+      // vínculo al edificio del usuario
+      edificioRef: edificioRef || null,
+      edificioId: edificioRef?.id || null,
       fechaCreacion: serverTimestamp(),
       fechaActualizacion: serverTimestamp(),
       asignadoA: null,

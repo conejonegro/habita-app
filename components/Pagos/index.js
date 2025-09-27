@@ -4,11 +4,14 @@ import { FontAwesome } from "@expo/vector-icons";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase/firebaseConfig";
 import styles from "../../styles/DasboardScreen.styles";
+import tempStore from "../../utils/tempStore";
+import storage from "../../utils/storage";
 
 export default function PagosSection({ navigation }) {
   const [paymentStatus, setPaymentStatus] = useState("Cargando...");
   const [nextPaymentWindow, setNextPaymentWindow] = useState("");
   const [showPayButton, setShowPayButton] = useState(false);
+  const [hasPaymentMethod, setHasPaymentMethod] = useState(false);
 
   useEffect(() => {
     const checkPaymentAvailability = (dueDate) => {
@@ -73,8 +76,29 @@ export default function PagosSection({ navigation }) {
       }
     };
 
+    const checkPaymentMethod = async () => {
+      let pm = tempStore.getItem("paymentMethod");
+      if (!pm) {
+        pm = await storage.getItem('paymentMethod');
+        if (pm) tempStore.setItem('paymentMethod', pm);
+      }
+      setHasPaymentMethod(!!pm);
+    };
+
     setNextPaymentWindow(computeNextPaymentWindow());
     fetchPaymentStatus();
+    checkPaymentMethod();
+
+    const unsubscribe = tempStore.subscribe((key) => {
+      if (key === "paymentMethod") checkPaymentMethod();
+    });
+
+    const focusUnsub = navigation?.addListener?.('focus', checkPaymentMethod);
+
+    return () => {
+      unsubscribe?.();
+      focusUnsub?.();
+    };
   }, []);
 
   const isPaid = paymentStatus === "Al día";
@@ -105,23 +129,51 @@ export default function PagosSection({ navigation }) {
         ) : null}
       </View>
 
-      <View style={[styles.card, { backgroundColor: "#E3F2FD" }]}>
-        <Text style={styles.cardTitle}>Actualiza tu Método de Pago</Text>
-        <View style={styles.paymentMessageContainer}>
-          <FontAwesome
-            name="credit-card"
-            size={16}
-            color="#1976D2"
-            style={styles.paymentIcon}
-          />
-          <Text style={[styles.status, { color: "#1976D2" }]}>
-            Agrega un método de pago y activa pagos automáticos fácilmente
-          </Text>
+      {!hasPaymentMethod && (
+        <View style={[styles.card, { backgroundColor: "#E3F2FD" }]}>
+          <Text style={styles.cardTitle}>Actualiza tu Método de Pago</Text>
+          <View style={styles.paymentMessageContainer}>
+            <FontAwesome
+              name="credit-card"
+              size={16}
+              color="#1976D2"
+              style={styles.paymentIcon}
+            />
+            <Text style={[styles.status, { color: "#1976D2" }]}>
+              Agrega un método de pago y activa pagos automáticos fácilmente
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.button, { marginTop: 12 }]}
+            onPress={() => navigation?.navigate?.('Pagos', { screen: 'PaymentSetup' })}
+          >
+            <Text style={styles.buttonText}>Configurar Pago</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={[styles.button, { marginTop: 12 }]}>
-          <Text style={styles.buttonText}>Configurar Pago</Text>
-        </TouchableOpacity>
-      </View>
+      )}
+
+      {hasPaymentMethod && (
+        <View style={[styles.card, { backgroundColor: "#E8F5E9" }]}>
+          <Text style={styles.cardTitle}>Pagos</Text>
+          <View style={styles.paymentMessageContainer}>
+            <FontAwesome
+              name="check-circle"
+              size={16}
+              color="#2E7D32"
+              style={styles.paymentIcon}
+            />
+            <Text style={[styles.status, { color: "#2E7D32" }]}>
+              Método de pago activo. Puedes pagar tu mensualidad.
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.button, { marginTop: 12 }]}
+            onPress={() => navigation?.navigate?.('Pagos', { screen: 'PaymentsHome' })}
+          >
+            <Text style={styles.buttonText}>Pagar mensualidad</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {showPayButton && (
         <View style={styles.card}>

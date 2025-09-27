@@ -141,6 +141,15 @@ export default function ProfileScreen({ navigation }) {
                     Departamento: {perfil.depaId}
                   </Text>
                 ) : null}
+                {perfil?.cuotaMensual != null ? (
+                  <Text style={[styles.userEmail, { marginTop: 6 }]}> 
+                    Cuota mensual: ${
+                      typeof perfil.cuotaMensual === 'number'
+                        ? perfil.cuotaMensual.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        : String(perfil.cuotaMensual)
+                    }
+                  </Text>
+                ) : null}
                 {edificio ? (
                   <>
                     <Text style={[styles.userEmail, { marginTop: 6 }]}>

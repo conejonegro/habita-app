@@ -9,6 +9,7 @@ import DashboardScreen from './screens/DashboardScreen';
 import MaintenanceTicketScreen from './screens/MaintenanceTicketScreen';
 import NotificationsScreen from './screens/NotificationsScreen';
 import PaymentsScreen from './screens/PaymentsScreen';
+import PaymentSetupScreen from './screens/PaymentSetupScreen';
 import SupportScreen from './screens/SupportScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import TicketDetailScreen from './screens/TicketDetailScreen';
@@ -16,6 +17,7 @@ import TicketDetailScreen from './screens/TicketDetailScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
+const PaymentsStack = createNativeStackNavigator();
 
 function HomeStackScreen() {
   return (
@@ -114,11 +116,58 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Inicio" component={HomeStackScreen} />
-      <Tab.Screen name="Pagos" component={PaymentsScreen} />
+      <Tab.Screen name="Pagos" component={PaymentsStackScreen} />
       <Tab.Screen name="NotificationsScreen" component={NotificationsScreen} />
       <Tab.Screen name="Soporte" component={SupportScreen} />
       <Tab.Screen name="Me" component={ProfileScreen} />
     </Tab.Navigator>
+  );
+}
+
+function PaymentsStackScreen() {
+  return (
+    <PaymentsStack.Navigator>
+      <PaymentsStack.Screen
+        name="PaymentsHome"
+        component={PaymentsScreen}
+        options={{
+          title: 'Pagos',
+          headerStyle: {
+            backgroundColor: '#FFFFFF',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 4,
+          },
+          headerTintColor: '#000000',
+          headerTitleStyle: {
+            fontWeight: '600',
+            fontSize: 18,
+          },
+        }}
+      />
+      <PaymentsStack.Screen
+        name="PaymentSetup"
+        component={PaymentSetupScreen}
+        options={{
+          title: 'Configurar Pagos',
+          headerStyle: {
+            backgroundColor: '#FFFFFF',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 4,
+          },
+          headerTintColor: '#000000',
+          headerTitleStyle: {
+            fontWeight: '600',
+            fontSize: 18,
+          },
+        }}
+      />
+    </PaymentsStack.Navigator>
   );
 }
 

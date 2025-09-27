@@ -8,6 +8,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 const handleGoogleLogin = async () => {
   try {
     const provider = new GoogleAuthProvider();
+    // Forzar selector de cuenta de Google en cada login
+    provider.setCustomParameters({ prompt: 'select_account' });
     const result = await signInWithPopup(auth, provider);
 
     // Información del usuario

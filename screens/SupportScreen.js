@@ -25,13 +25,6 @@ export default function SupportScreen() {
             </View>
           </View>
           
-          <View style={styles.supportCard}>
-            <Text style={styles.cardTitle}>Reportar Problema</Text>
-            <Text style={styles.cardDescription}>Reporta problemas técnicos o de mantenimiento</Text>
-            <View style={styles.supportButton}>
-              <Text style={styles.supportButtonText}>Reportar</Text>
-            </View>
-          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
