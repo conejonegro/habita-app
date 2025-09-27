@@ -11,6 +11,7 @@ import NotificationsScreen from './screens/NotificationsScreen';
 import PaymentsScreen from './screens/PaymentsScreen';
 import SupportScreen from './screens/SupportScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import TicketDetailScreen from './screens/TicketDetailScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,6 +30,26 @@ function HomeStackScreen() {
         component={MaintenanceTicketScreen}
         options={{
           title: 'Ticket de Mantenimiento',
+          headerStyle: {
+            backgroundColor: '#FFFFFF',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 4,
+          },
+          headerTintColor: '#000000',
+          headerTitleStyle: {
+            fontWeight: '600',
+            fontSize: 18,
+          },
+        }}
+      />
+      <HomeStack.Screen
+        name="TicketDetail"
+        component={TicketDetailScreen}
+        options={{
+          title: 'Detalle del Ticket',
           headerStyle: {
             backgroundColor: '#FFFFFF',
             shadowColor: '#000',

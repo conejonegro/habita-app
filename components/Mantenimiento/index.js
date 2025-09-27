@@ -73,7 +73,11 @@ export default function Mantenimiento({ navigation }) {
           <Text style={styles.cardTitle}>Mis Tickets de Mantenimiento</Text>
           {tickets.length > 0 ? (
             tickets.map((ticket) => (
-              <View key={ticket.id} style={styles.listItem}>
+              <TouchableOpacity
+                key={ticket.id}
+                style={styles.listItem}
+                onPress={() => navigation.navigate('TicketDetail', { ticketId: ticket.id })}
+              >
                 <View style={styles.listIcon}>
                   <FontAwesome
                     name="wrench"
@@ -90,7 +94,7 @@ export default function Mantenimiento({ navigation }) {
                       : "sin fecha"}
                   </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))
           ) : (
             <Text style={{ color: UberColors.textSecondary }}>
