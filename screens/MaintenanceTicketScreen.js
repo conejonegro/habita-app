@@ -7,6 +7,7 @@ import { addDoc, collection, serverTimestamp, doc, setDoc } from 'firebase/fires
 const MaintenanceTicketScreen = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [successId, setSuccessId] = useState(null);
 
 const handleSubmit = async () => {
   try {
@@ -51,7 +52,9 @@ const handleSubmit = async () => {
     // setDoc con ID custom
     await setDoc(doc(db, 'tickets_mantenimiento', customId), newTicket);
 
-    Alert.alert('Éxito', `Tu ticket ha sido enviado con ID: ${customId}`);
+    // Mostrar un pequeño aviso de éxito
+    setSuccessId(customId);
+    setTimeout(() => setSuccessId(null), 3000);
     setTitle('');
     setDescription('');
   } catch (error) {
@@ -67,6 +70,14 @@ const handleSubmit = async () => {
           <Text style={styles.header}>Levantar Ticket de Mantenimiento</Text>
           <Text style={styles.subtitle}>Describe el problema que necesitas resolver</Text>
           
+          {successId && (
+            <View style={styles.successToast}>
+              <Text style={styles.successToastText}>
+                Ticket enviado con éxito • ID: {successId}
+              </Text>
+            </View>
+          )}
+
           <View style={styles.formCard}>
             <Text style={styles.label}>Título del problema</Text>
             <TextInput
@@ -157,6 +168,20 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: UberColors.buttonText,
     fontSize: UberTypography.fontSize.lg,
+    fontFamily: UberTypography.fontFamilySemiBold,
+  },
+  successToast: {
+    backgroundColor: UberColors.green,
+    paddingVertical: UberSpacing.sm,
+    paddingHorizontal: UberSpacing.lg,
+    borderRadius: UberBorderRadius.full,
+    alignSelf: 'flex-start',
+    marginBottom: UberSpacing.lg,
+    ...UberShadows.small,
+  },
+  successToastText: {
+    color: UberColors.white,
+    fontSize: UberTypography.fontSize.sm,
     fontFamily: UberTypography.fontFamilySemiBold,
   },
 });
