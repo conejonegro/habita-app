@@ -22,7 +22,8 @@ export default function EventosNotificaciones({ navigation }) {
           if (typeof f?.toDate === "function") return f.toDate().getTime();
           return new Date(f).getTime();
         };
-        return getDate(a) - getDate(b);
+        // Orden descendente: más nuevo primero
+        return getDate(b) - getDate(a);
       });
       setEvents(items);
       setLoading(false);
