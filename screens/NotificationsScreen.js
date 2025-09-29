@@ -9,6 +9,7 @@ import { collection, query, where, onSnapshot, doc, getDoc } from "firebase/fire
 const NotificationsScreen = () => {
   const [expandedId, setExpandedId] = useState(null);
   const [items, setItems] = useState([]);
+  const [readIds, setReadIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -29,8 +30,11 @@ const NotificationsScreen = () => {
       [...cacheA, ...cacheB, ...cacheT].forEach((it) => map.set(it.__id, it));
       let arr = Array.from(map.values());
 
-      // Filtro obligatorio por estado 'enviada' (case-insensitive)
-      arr = arr.filter((n) => (n.__estado || "").toLowerCase() === "enviada");
+      // Incluir estados enviados o cerrados; si no hay estado, asumir enviada
+      arr = arr.filter((n) => {
+        const st = (n.__estado || "enviada").toLowerCase();
+        return st === "enviada" || st === "activa" || st === "cerrada";
+      });
 
       // Filtro opcional por torre si el perfil lo especifica y la notificación lo define
       const torreUsuario = perfil?.torre || perfil?.torreCode || perfil?.torreId || null;
@@ -52,7 +56,15 @@ const NotificationsScreen = () => {
       arr.sort((a, b) => (b.__time || 0) - (a.__time || 0));
 
       // Adaptar a items de UI
-      const ui = arr.map((d) => ({ id: d.__id, title: d.title, description: d.description, date: d.date }));
+      const ui = arr.map((d) => ({
+        id: d.__id,
+        title: d.title,
+        description: d.description,
+        date: d.date,
+        estado: (d.__estado || "enviada").toLowerCase(),
+        categoria: d.__categoria || null,
+        isNew: !!d.__isNew,
+      }));
       setItems(ui);
       setLoading(false);
     };
@@ -108,19 +120,21 @@ const NotificationsScreen = () => {
               } else if (ts) {
                 try { tms = new Date(ts).getTime(); dateStr = new Date(ts).toLocaleString(); } catch {}
               }
-              return {
-                __id: d.id,
-                title,
-                description,
-                date: dateStr,
-                __time: tms,
-                __torre: data.torre || data.torreId || null,
-                __torreCode: data.torreCode || null,
-                __torres: data.torres || null,
-                __estado: (data.estado || "").toLowerCase(),
-              };
-            });
-            applyMerge(perfil);
+            return {
+              __id: d.id,
+              title,
+              description,
+              date: dateStr,
+              __time: tms,
+              __torre: data.torre || data.torreId || null,
+              __torreCode: data.torreCode || null,
+              __torres: data.torres || null,
+              __estado: (data.estado || data.status || "").toLowerCase(),
+              __categoria: data.categoria || data.category || data.tipo || null,
+              __isNew: (data.nueva ?? data.nuevo ?? data.isNew ?? (data.leida === false)) || false,
+            };
+          });
+          applyMerge(perfil);
           },
           (err) => {
             console.error("Notif edificioRef error:", err);
@@ -157,7 +171,9 @@ const NotificationsScreen = () => {
                   __torre: data.torre || data.torreId || null,
                   __torreCode: data.torreCode || null,
                   __torres: data.torres || null,
-                  __estado: (data.estado || "").toLowerCase(),
+                  __estado: (data.estado || data.status || "").toLowerCase(),
+                  __categoria: data.categoria || data.category || data.tipo || null,
+                  __isNew: (data.nueva ?? data.nuevo ?? data.isNew ?? (data.leida === false)) || false,
                 };
               });
               applyMerge(perfil);
@@ -197,7 +213,9 @@ const NotificationsScreen = () => {
               __torre: data.torre || data.torreId || null,
               __torreCode: data.torreCode || null,
               __torres: data.torres || null,
-              __estado: (data.estado || "").toLowerCase(),
+              __estado: (data.estado || data.status || "").toLowerCase(),
+              __categoria: data.categoria || data.category || data.tipo || null,
+              __isNew: (data.nueva ?? data.nuevo ?? data.isNew ?? (data.leida === false)) || false,
             };
           });
           listeners.push(onSnapshot(query(colRef, where("torre", "==", torreUsuario)), (snap) => { cacheT = mapDoc(snap); applyMerge(perfil); }));
@@ -229,7 +247,11 @@ const NotificationsScreen = () => {
   }
 
   const toggleExpand = (id) => {
-    setExpandedId(expandedId === id ? null : id);
+    const nextId = expandedId === id ? null : id;
+    setExpandedId(nextId);
+    if (nextId === id) {
+      setReadIds((prev) => new Set(prev).add(id));
+    }
   };
 
   return (
@@ -253,8 +275,14 @@ const NotificationsScreen = () => {
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.notificationCard}>
+          renderItem={({ item }) => {
+            const isClosed = (item.estado || "").toLowerCase() === 'cerrada';
+            const showNewBorder = item.isNew && !readIds.has(item.id);
+            return (
+            <View style={[
+              styles.notificationCard,
+              showNewBorder && styles.notificationCardNew,
+            ]}>
               <View style={styles.titleContainer}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.title} onPress={() => toggleExpand(item.id)}>
@@ -264,13 +292,26 @@ const NotificationsScreen = () => {
                 </View>
                 <Ionicons name={expandedId === item.id ? 'chevron-up' : 'chevron-down'} size={16} color="gray" style={styles.icon} />
               </View>
+              <View style={styles.metaRow}>
+                <View style={[styles.chip, isClosed ? styles.chipClosed : styles.chipActive]}>
+                  <Text style={[styles.chipText, isClosed ? styles.chipTextClosed : styles.chipTextActive]}>
+                    {isClosed ? 'Cerrada' : 'Activa'}
+                  </Text>
+                </View>
+                {item.categoria ? (
+                  <View style={[styles.chip, styles.chipCategory]}>
+                    <Text style={[styles.chipText, styles.chipTextCategory]}>{item.categoria}</Text>
+                  </View>
+                ) : null}
+              </View>
               {expandedId === item.id && (
                 <View style={styles.expandedContent}>
                   <Text style={styles.description}>{item.description}</Text>
                 </View>
               )}
             </View>
-          )}
+          );}
+          }
         />
       )}
     </SafeAreaView>
@@ -303,9 +344,19 @@ const styles = StyleSheet.create({
     backgroundColor: UberColors.white,
     ...UberShadows.small,
   },
+  notificationCardNew: {
+    borderWidth: 2,
+    borderColor: '#F59E0B', // naranja
+  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: UberSpacing.sm,
   },
   icon: {
     marginLeft: 'auto',
@@ -327,6 +378,38 @@ const styles = StyleSheet.create({
     padding: UberSpacing.sm,
     backgroundColor: UberColors.gray50,
     borderRadius: UberBorderRadius.sm,
+  },
+  chip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    alignSelf: 'flex-start',
+  },
+  chipActive: {
+    borderColor: '#10B981', // verde
+    backgroundColor: 'transparent',
+  },
+  chipClosed: {
+    borderColor: '#9CA3AF', // gris
+    backgroundColor: 'transparent',
+  },
+  chipCategory: {
+    borderColor: '#374151', // gris oscuro
+    backgroundColor: 'transparent',
+  },
+  chipText: {
+    fontSize: UberTypography.fontSize.xs,
+    fontWeight: '600',
+  },
+  chipTextActive: {
+    color: '#065F46',
+  },
+  chipTextClosed: {
+    color: '#4B5563',
+  },
+  chipTextCategory: {
+    color: '#111827',
   },
   description: {
     fontSize: UberTypography.fontSize.sm,

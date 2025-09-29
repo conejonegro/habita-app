@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <defs>
+    <style>
+      .title { font: 700 18px Inter, Arial, sans-serif; fill: #111; }
+      .label { font: 600 14px Inter, Arial, sans-serif; fill: #111; }
+      .small { font: 400 12px Inter, Arial, sans-serif; fill: #333; }
+      .box { fill: #fff; stroke: #D1D5DB; stroke-width: 2; rx: 10; }
+      .group { fill: #F9FAFB; stroke: #E5E7EB; stroke-width: 2; rx: 12; }
+      .arrow { stroke: #6B7280; stroke-width: 2.5; marker-end: url(#arrowhead); fill: none; }
+      .arrow-bold { stroke: #111827; stroke-width: 3; marker-end: url(#arrowhead); fill: none; }
+      .pill { fill: #F3F4F6; stroke: #D1D5DB; stroke-width: 1.5; rx: 16; }
+    </style>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6B7280" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="40" y="50" class="title">Habita App — Diagrama de Flujo</text>
+  <text x="40" y="75" class="small">Expo + React Native + React Navigation + Firebase (Auth/Firestore)</text>
+
+  <!-- User lane -->
+  <rect x="40" y="100" width="220" height="720" class="group"/>
+  <text x="60" y="130" class="label">Usuario</text>
+  <rect x="60" y="160" width="180" height="48" class="pill"/>
+  <text x="80" y="190" class="small">Abre la app (Expo)</text>
+  <rect x="60" y="230" width="180" height="48" class="pill"/>
+  <text x="80" y="260" class="small">Ingresa credenciales</text>
+  <rect x="60" y="300" width="180" height="48" class="pill"/>
+  <text x="80" y="330" class="small">Navega entre pestañas</text>
+  <rect x="60" y="370" width="180" height="48" class="pill"/>
+  <text x="80" y="400" class="small">Crea ticket</text>
+  <rect x="60" y="440" width="180" height="48" class="pill"/>
+  <text x="80" y="470" class="small">Revisa notificaciones</text>
+  <rect x="60" y="510" width="180" height="48" class="pill"/>
+  <text x="80" y="540" class="small">Gestiona pagos</text>
+  <rect x="60" y="580" width="180" height="48" class="pill"/>
+  <text x="80" y="610" class="small">Contacta soporte</text>
+  <rect x="60" y="650" width="180" height="48" class="pill"/>
+  <text x="80" y="680" class="small">Edita perfil</text>
+
+  <!-- App Navigation -->
+  <rect x="300" y="100" width="760" height="720" class="group"/>
+  <text x="320" y="130" class="label">App (Navegación)</text>
+
+  <!-- Login -->
+  <rect x="340" y="170" width="220" height="80" class="box"/>
+  <text x="360" y="200" class="label">LoginScreen</text>
+  <text x="360" y="220" class="small">Stack: Login → MainTabs</text>
+
+  <!-- Tabs container -->
+  <rect x="340" y="300" width="700" height="480" class="box"/>
+  <text x="360" y="330" class="label">MainTabs (Bottom Tabs)</text>
+  <text x="360" y="350" class="small">Inicio • Pagos • Notificaciones • Soporte • Me</text>
+
+  <!-- Home / Dashboard stack -->
+  <rect x="360" y="380" width="300" height="360" class="group"/>
+  <text x="380" y="410" class="label">Inicio (HomeStack)</text>
+  <rect x="380" y="440" width="260" height="70" class="box"/>
+  <text x="400" y="470" class="label">DashboardScreen</text>
+  <rect x="380" y="530" width="260" height="70" class="box"/>
+  <text x="400" y="560" class="label">MaintenanceTicketScreen</text>
+  <rect x="380" y="620" width="260" height="70" class="box"/>
+  <text x="400" y="650" class="label">TicketDetailScreen</text>
+
+  <!-- Payments stack -->
+  <rect x="690" y="380" width="330" height="220" class="group"/>
+  <text x="710" y="410" class="label">Pagos (PaymentsStack)</text>
+  <rect x="710" y="440" width="290" height="70" class="box"/>
+  <text x="730" y="470" class="label">PaymentsScreen</text>
+  <rect x="710" y="530" width="290" height="70" class="box"/>
+  <text x="730" y="560" class="label">PaymentSetupScreen</text>
+
+  <!-- Other tabs -->
+  <rect x="690" y="620" width="330" height="120" class="group"/>
+  <text x="710" y="650" class="label">Otras pestañas</text>
+  <rect x="710" y="670" width="150" height="50" class="box"/>
+  <text x="720" y="700" class="small">NotificationsScreen</text>
+  <rect x="870" y="670" width="150" height="50" class="box"/>
+  <text x="900" y="700" class="small">SupportScreen</text>
+  <rect x="790" y="730" width="150" height="50" class="box"/>
+  <text x="835" y="760" class="small">ProfileScreen</text>
+
+  <!-- Firebase zone -->
+  <rect x="1090" y="100" width="270" height="720" class="group"/>
+  <text x="1110" y="130" class="label">Firebase</text>
+  <rect x="1110" y="170" width="230" height="80" class="box"/>
+  <text x="1130" y="200" class="label">Auth</text>
+  <text x="1130" y="220" class="small">getAuth(initializeApp(...))</text>
+  <rect x="1110" y="270" width="230" height="80" class="box"/>
+  <text x="1130" y="300" class="label">Firestore</text>
+  <text x="1130" y="320" class="small">getFirestore(app)</text>
+
+  <!-- Arrows: User → Login -->
+  <path d="M 240 184 H 340" class="arrow"/>
+  <path d="M 240 254 H 340" class="arrow"/>
+
+  <!-- Arrows: Login → Auth -->
+  <path d="M 560 210 H 1110" class="arrow-bold"/>
+
+  <!-- Arrows: Auth success → MainTabs -->
+  <path d="M 1110 210 H 560" class="arrow"/>
+  <path d="M 560 210 V 300" class="arrow"/>
+
+  <!-- Arrows: Home interactions → Firestore -->
+  <path d="M 510 565 C 800 565, 800 310, 1110 310" class="arrow"/>
+  <path d="M 510 655 C 820 655, 820 310, 1110 310" class="arrow"/>
+
+  <!-- Arrows: Payments → Firestore -->
+  <path d="M 855 475 C 980 475, 980 310, 1110 310" class="arrow"/>
+  <path d="M 855 565 C 980 565, 980 310, 1110 310" class="arrow"/>
+
+  <!-- Arrows: Notifications/Profile read → Firestore -->
+  <path d="M 785 695 C 950 695, 950 310, 1110 310" class="arrow"/>
+  <path d="M 865 755 C 1000 755, 1000 310, 1110 310" class="arrow"/>
+
+  <!-- Legend -->
+  <rect x="40" y="820" width="1320" height="60" class="group"/>
+  <text x="60" y="850" class="small">Flujo principal: Usuario inicia sesión → Auth valida → App muestra MainTabs. Acciones de Tickets y Pagos leen/escriben en Firestore. Notificaciones/Perfil consultan datos en Firestore.</text>
+</svg>
+
